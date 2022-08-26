@@ -1,0 +1,273 @@
+#include<iostream>                                  //R-Type(L ) - R(1),R(0) - LL Rotation, R(-1) - LR Rotation,
+using namespace std;                                //L-Type(R ) - L(-1),L(0) - RR Rotation, L(1) - RL Rotation.
+
+struct node
+{
+    int data;
+    struct node *lchild, *rchild;
+};
+
+class AVL
+{
+    public:
+        struct node *root, *ptr;
+        AVL(){root=NULL;ptr=NULL;}
+        node* create(int);
+        void insert(struct node* &,int);
+        int height(node*);
+        int balance_factor(node*);
+        node* rotation(node*);
+        node* minValueNode(node*);
+        node* deleteNode(node*, int);
+        node* ll(node*);
+        node* lr(node*);
+        node* rl(node*);
+        node* rr(node*);
+        void preorder(node*);
+        void inorder(node*);
+        void postorder(node*);
+};
+
+
+node* AVL::create(int data)
+{
+    struct node *n = new node;
+    n->data=data;
+    n->lchild=n->rchild=NULL;
+    return n;
+}
+
+int AVL::height(node* temp)
+{
+    if(temp!=NULL)
+    {
+        int l_h=height(temp->lchild);
+        int r_h=height(temp->rchild);
+        int max_h=max(l_h,r_h);
+        return max_h+1;
+    }
+}
+
+int AVL::balance_factor(node* temp)
+{
+    return (height(temp->lchild)-height(temp->rchild));
+}
+
+void AVL::insert(node* &temp, int item)
+{
+    if(temp == NULL)
+        temp=create(item);
+    else if(item < temp->data)
+    {
+        insert(temp->lchild,item);
+        temp=rotation(temp);
+    }
+    else if(item > temp->data)
+    {
+        insert(temp->rchild,item);
+        temp=rotation(temp);
+    }
+}
+
+node* AVL::rotation(node* temp)
+{
+    if(balance_factor(temp)>1)
+    {
+        if(balance_factor(temp->lchild)>0)
+        {
+            cout<<"\nLL Rotation"<<endl;
+            temp=ll(temp);
+        }
+        else
+        {
+            cout<<"\nLR Rotation"<<endl;
+            temp=lr(temp);
+        }
+    }
+    else if(balance_factor(temp)<-1)
+    {
+        if(balance_factor(temp->rchild)>0)
+        {
+            cout<<"\nRL Rotation"<<endl;
+            temp=rl(temp);
+        }
+        else
+        {
+            cout<<"\nRR Rotation"<<endl;
+            temp=rr(temp);
+        }
+    }
+    return temp;
+}
+
+node* AVL::minValueNode(node* n)
+{
+    node * current = n;
+    while (current -> lchild != NULL)
+    {
+        current = current -> lchild;
+    }
+    return current;
+}
+
+node* AVL::deleteNode(node * r, int v)
+{
+    if (r == NULL)
+      return NULL;
+    else if (v < r -> data)
+      r -> lchild = deleteNode(r -> lchild, v);
+    else if (v > r -> data)
+      r -> rchild = deleteNode(r -> rchild, v);
+    else
+    {
+        if (r -> lchild == NULL)
+        {
+            node * temp = r -> rchild;
+            delete r;
+            return temp;
+        }
+        else if (r -> rchild == NULL)
+        {
+            node * temp = r -> lchild;
+            delete r;
+            return temp;
+        }
+        else
+        {
+            node * temp = minValueNode(r -> rchild);
+            r -> data = temp -> data;
+            r -> rchild = deleteNode(r -> rchild, temp -> data);
+        }
+    }
+    int bf = balance_factor(r);
+    if (bf == 2 && balance_factor(r -> lchild) >= 0)
+    {
+        if(r==root)
+            root=ll(r);
+        else
+            return ll(r);
+    }
+    else if (bf == 2 && balance_factor(r -> lchild) == -1)
+    {
+        r -> lchild = rr(r -> lchild);
+        if(r==root)
+            root=ll(r);
+        else
+            return ll(r);
+    }
+    else if (bf == -2 && balance_factor(r -> rchild) <= -0)
+    {
+        if(r==root)
+            root=rr(r);
+        else
+            return rr(r);
+    }
+    else if (bf == -2 && balance_factor(r -> rchild) == 1)
+    {
+        r -> rchild = ll(r -> rchild);
+        if(r==root)
+            root=rr(r);
+        else
+            return rr(r);
+    }
+    return r;
+}
+
+node* AVL::ll(node* a)
+{
+    node *b = a->lchild;
+    a->lchild = b->rchild;
+    b->rchild = a;
+    return b;
+}
+
+node* AVL::rr(node* a)
+{
+    node *b = a->rchild;
+    a->rchild = b->lchild;
+    b->lchild = a;
+    return b;
+}
+
+node* AVL::lr(node* a)
+{
+    a->lchild = rr(a->lchild);
+    node *b = ll(a);
+    return b;
+}
+
+node* AVL::rl(node* a)
+{
+    a->rchild = ll(a->rchild);
+    node *b = rr(a);
+    \
+    return b;
+}
+
+void AVL::preorder(node* T)
+{
+    if(T!=NULL)
+    {
+        cout<<T->data<<"--->";
+        preorder(T->lchild);
+        preorder(T->rchild);
+    }
+}
+
+void AVL::inorder(node* T)
+{
+    if(T!=NULL)
+    {
+        inorder(T->lchild);
+        cout<<T->data<<"--->";
+        inorder(T->rchild);
+    }
+}
+
+void AVL::postorder(node* T)
+{
+    if(T!=NULL)
+    {
+        postorder(T->lchild);
+        postorder(T->rchild);
+        cout<<T->data<<"--->";
+    }
+}
+
+int main()
+{
+    AVL a;
+//    a.insert(a.root,46);
+//    a.insert(a.root,34);
+//    a.insert(a.root,75);
+//    a.insert(a.root,22);
+//    a.insert(a.root,41);
+//    a.insert(a.root,55);
+//    a.insert(a.root,80);
+//    a.insert(a.root,11);
+//    a.insert(a.root,25);
+//    a.insert(a.root,38);
+//    a.insert(a.root,44);
+//    a.insert(a.root,60);
+//    a.insert(a.root,79);
+//    a.insert(a.root,90);
+//    a.insert(a.root,9);
+//    a.insert(a.root,36);
+//    a.insert(a.root,40);
+//    a.insert(a.root,45);
+//    a.insert(a.root,85);
+//    a.insert(a.root,35);
+
+
+    a.insert(a.root,76);
+    a.insert(a.root,60);
+    a.insert(a.root,85);
+    a.insert(a.root,44);
+    a.insert(a.root,71);
+    a.insert(a.root,80);
+    a.insert(a.root,50);
+        a.preorder(a.root);
+    cout<<endl<<endl;
+    a.deleteNode(a.root,85);
+    a.preorder(a.root);
+}
