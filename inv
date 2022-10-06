@@ -1,79 +1,45 @@
-#include<iostream>
-#define size 20
-using namespace std;
-int merge_inversion_pairs(int A[],int low,int mid,int high)
-{
-    int p = low;
-    int q = (mid+1);
-    int index = low;
-    int cm = 0;
-    int C[index];
-    while(p<=mid && q<=high)
-    {
-        if(A[p]<=A[q])
-        {
-            C[index] = A[p];
-            p++;
-        }
-        else
-        {
-            C[index] = A[q];
-            q++;
-            cm += (mid - p +1);
-        }
-        index++;
-    }
+def mergeSort(arr, n):
+    temp_arr = [0]*n
+    return _mergeSort(arr, temp_arr, 0, n-1)
 
-    if(p>mid)
-    {
-        for(int i=q;i<high;i++)
-        {
-            C[index] = A[i];
-            index++;
-        }
-    }
-    else
-    {
-        for(int i=p;i<mid;i++)
-        {
-            C[index] = A[i];
-            index++;
-        }
-    }
-
-    for(int i=low;i<high;i++)
-    {
-        A[i] = C[i];
-    }
-        return cm;
-}
-
-int number_inversion_pairs(int A[],int low,int high)
-{
-    if(low<high)
-    {
-        int mid = (low+high)/2;
-        int cl = number_inversion_pairs(A,low,mid);
-        int cu = number_inversion_pairs(A,(mid+1),high);
-        int cm = merge_inversion_pairs(A,low,mid,high);
-        return(cl+cu+cm);
-    }
-    else
-        return 0;
-}
-
-int main()
-{
-    int n,A[size];
-    cout<<"\nEnter the value of n";
-    cin>>n;
-    int low = 0;
-    int high = n;
-    cout<<"\nEnter the array elements";
-    for(int i=0;i<n;i++)
-    {
-        cin>>A[i];
-    }
-    int no = number_inversion_pairs(A,low,high);
-    cout<<"\nNo of inversion = "<<no;
-}
+def _mergeSort(arr, temp_arr, left, right):
+    inv_count = 0
+    if left < right:
+        mid = (left + right)//2
+        inv_count += _mergeSort(arr, temp_arr, left, mid)
+        inv_count += _mergeSort(arr, temp_arr, mid + 1, right)
+        inv_count += merge(arr, temp_arr, left, mid, right)
+    return inv_count
+def merge(arr, temp_arr, left, mid, right):
+    i = left
+    j = mid + 1
+    k = left
+    inv_count = 0
+    while i <= mid and j <= right:
+        if arr[i] <= arr[j]:
+            temp_arr[k] = arr[i]
+            k += 1
+            i += 1
+        else:
+            temp_arr[k] = arr[j]
+            inv_count += (mid-i + 1)
+            k += 1
+            j += 1
+    while i <= mid:
+        temp_arr[k] = arr[i]
+        k += 1
+        i += 1
+    while j <= right:
+        temp_arr[k] = arr[j]
+        k += 1
+        j += 1
+    for loop_var in range(left, right + 1):
+        arr[loop_var] = temp_arr[loop_var]
+    return inv_count
+arr =list()
+n = int(input("No.of elements in array:"))
+for i in range(n):
+    elt=int(input())
+    arr.append(elt)
+result = mergeSort(arr, n)
+print("Number of inversions are", result)
