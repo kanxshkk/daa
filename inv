@@ -1,0 +1,79 @@
+#include<iostream>
+#define size 20
+using namespace std;
+int merge_inversion_pairs(int A[],int low,int mid,int high)
+{
+    int p = low;
+    int q = (mid+1);
+    int index = low;
+    int cm = 0;
+    int C[index];
+    while(p<=mid && q<=high)
+    {
+        if(A[p]<=A[q])
+        {
+            C[index] = A[p];
+            p++;
+        }
+        else
+        {
+            C[index] = A[q];
+            q++;
+            cm += (mid - p +1);
+        }
+        index++;
+    }
+
+    if(p>mid)
+    {
+        for(int i=q;i<high;i++)
+        {
+            C[index] = A[i];
+            index++;
+        }
+    }
+    else
+    {
+        for(int i=p;i<mid;i++)
+        {
+            C[index] = A[i];
+            index++;
+        }
+    }
+
+    for(int i=low;i<high;i++)
+    {
+        A[i] = C[i];
+    }
+        return cm;
+}
+
+int number_inversion_pairs(int A[],int low,int high)
+{
+    if(low<high)
+    {
+        int mid = (low+high)/2;
+        int cl = number_inversion_pairs(A,low,mid);
+        int cu = number_inversion_pairs(A,(mid+1),high);
+        int cm = merge_inversion_pairs(A,low,mid,high);
+        return(cl+cu+cm);
+    }
+    else
+        return 0;
+}
+
+int main()
+{
+    int n,A[size];
+    cout<<"\nEnter the value of n";
+    cin>>n;
+    int low = 0;
+    int high = n;
+    cout<<"\nEnter the array elements";
+    for(int i=0;i<n;i++)
+    {
+        cin>>A[i];
+    }
+    int no = number_inversion_pairs(A,low,high);
+    cout<<"\nNo of inversion = "<<no;
+}
